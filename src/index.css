@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Signal";
+    font-weight: 400;
+    src: url('./assets/Signal-Light.woff2');
+}
+@font-face {
+    font-family: "Signal";
+    font-weight: 500;
+    src: url('./assets/Signal-Normal.woff2');
+}
+@font-face {
+    font-family: "Signal";
+    font-weight: 700;
+    src: url('./assets/Signal-Bold.woff2');
+}
+
+.group:hover svg{
+    color: #1c1917;
+}
+.group.bg-fuchsia-300 svg{
+    color: #1c1917;
+}
+
+@layer components{
+    .gradient {
+        background: linear-gradient(-45deg, #EE7752, #a21caf, #db2777, #8b5cf6);
+        background-size: 400% 400%;
+        -webkit-animation: Gradient 15s ease infinite;
+        -moz-animation: Gradient 15s ease infinite;
+        animation: Gradient 5s ease infinite;
+    }
+
+    .logo {
+        font-weight: 400;
+        font-family: Signal;
+        -webkit-background-clip: text;    
+        background-clip: text;
+        color: transparent;
+    }
+    
+    @keyframes Gradient {
+        0% {
+            background-position: 0% 50%
+        }
+        50% {
+            background-position: 100% 50%
+        }
+        100% {
+            background-position: 0% 50%
+        }
+    }
+}
+
+body {
+    background-color: #1c1917;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.lds-ellipsis {
+    position: relative;
+    width: 80px;
+    height: 18px;
+}
+.lds-ellipsis div {
+    position: absolute;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+    left: 8px;
+    animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+    left: 8px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+    left: 32px;
+    animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+    left: 56px;
+    animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+    0% {
+        transform: scale(0);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+@keyframes lds-ellipsis3 {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+@keyframes lds-ellipsis2 {
+    0% {
+        transform: translate(0, 0);
+    }
+    100% {
+        transform: translate(24px, 0);
+    }
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #78716c;
+  -webkit-box-shadow: 0 0 0px 1000px #1c1917 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}

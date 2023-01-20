@@ -3,7 +3,7 @@ import MessengerSidebar from './components/MessengerSidebar';
 
 const Messenger = () => {
     return (
-        <div className="grid grid-cols-messenger">
+        <div className="grid grid-cols-messenger min-h-0">
             <MessengerSidebar />
             <Outlet/>
         </div>

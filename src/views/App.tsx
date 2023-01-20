@@ -15,7 +15,7 @@ const router = createBrowserRouter([{
         path: 'messenger',
         element: <Messenger/>,
         children: [{
-            path: ':uuid',
+            path: ':chatId',
             element: <Chat/>,
         }]
     }, {

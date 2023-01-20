@@ -46,7 +46,6 @@ const Auth = () => {
             return
         }
 
-        console.log(data)
         navigate('/')
     }
 

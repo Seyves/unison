@@ -13,7 +13,7 @@ module.exports = {
             'main': '55px 1fr',
         },
         gridTemplateRows: {
-            'chat': '70px 1fr',
+            'chat': '65px 1fr',
             'main': '60px 1fr'
         },
         height: {

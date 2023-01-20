@@ -4,7 +4,7 @@ const getUsers = async (query : string) => {
     return await supabase
         .from('user')
         .select()
-        .like('username', `%${query}%`)
+        .like('name', `%${query}%`)
 }
 
 export {getUsers}

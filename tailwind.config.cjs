@@ -34,6 +34,13 @@ module.exports = {
         require('autoprefixer'),
         plugin(function({ addVariant }) {
             addVariant('hocus', ['&:hover', '&:focus'])
+        }),
+        plugin(({ addUtilities }) => {
+            addUtilities({
+              ".no-overflow-anchoring": {
+                overflowAnchor: "none",
+              },
+            });
         })
     ],
   }

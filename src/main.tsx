@@ -16,15 +16,3 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 export {
     queryClient
 }
-
-// {
-//     path: '/',
-//     element: <App />,
-//     children: [
-//         {
-//             path: "messenger/:uuid",
-//             element: <Chat />,
-//             loader: chatLoader
-//         },
-//     ],   
-// }

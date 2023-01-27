@@ -1,29 +1,31 @@
 import ChatPreview from './ChatPreview';
 import Input from '../../../components/Input';
 import { useState, ChangeEvent, useEffect } from 'react';
-import { getUsers } from '../../../api/users';
-import createDebounce from '../../../functions/debounce'
+import { getChatsPreview } from '../../../api/chats';
+import createDebounce from '../../../functions/createDebounce'
 import supabase from '../../../config/supabaseClient';
 import { IChatPreview } from '../../../definitions/interfaces';
 import { PostgrestResponse } from '@supabase/supabase-js';
-import { useQuery } from '@tanstack/react-query';
-import { queryClient } from '../../../main';
-
-const debounce = createDebounce(100)
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const MessengerSidebar = () => {    
-    const { refetch, data: response } = useQuery({
+    const queryClient = useQueryClient()
+
+    const { refetch, data: previews } = useQuery({
         queryKey: ['chat-previews'],
-        queryFn: () => supabase.rpc('get_chats_preview') as unknown as Promise<PostgrestResponse<IChatPreview>>,
-        onSuccess: (response) => {
-            response?.data?.forEach(preview => {
+        queryFn: () => getChatsPreview(),
+        refetchOnWindowFocus: false,
+        onSuccess: (previews) => {
+            if (!previews) return;
+
+            for (let preview of previews) {
                 queryClient.setQueryData(
-                    ["chat-preview", preview.id.toString()], 
-                    {...response, data: [preview]}
+                    ["chat-preview", preview.id], 
+                    preview
                 )
-            })
+            }
         }
-    })    
+    })
 
     supabase
         .channel("all-chat-changes")
@@ -32,13 +34,11 @@ const MessengerSidebar = () => {
             {
                 event: '*', 
                 schema: 'public', 
-                table: 'message'
+                table: 'messages'
             }, 
             () => refetch()
         )
-        .subscribe() 
-
-    const previews = response?.data 
+        .subscribe()
 
     return (
         <div className="grid grid-rows-chat border-stone-700 border-r min-h-0">
@@ -53,7 +53,7 @@ const MessengerSidebar = () => {
                 </div>
                 <div className=" overflow-y-auto">
                     <div>
-                        {previews?.map((item: IChatPreview) => <ChatPreview key={item.id} {...item}/>)}
+                        {previews?.map((item) => <ChatPreview key={item.id} {...item}/>)}
                     </div>
                 </div>
             </div>

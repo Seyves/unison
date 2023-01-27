@@ -1,20 +1,23 @@
 import supabase from "../config/supabaseClient"
 import { PostgrestResponse } from "@supabase/supabase-js";
-import { IChatPreview, IDraft } from "../definitions/interfaces";
+import { IChatPreview } from "../definitions/interfaces";
 
-const getChatPreview = (chatId : string) => {
-    return supabase
+const getChatPreview = async (chatId : number) => {
+    const resp = await supabase
         .rpc('get_chats_preview')
-        .eq('id', chatId) as unknown as Promise<PostgrestResponse<IChatPreview>>
+        .eq('id', chatId)
+    
+    return resp.data?.[0]
 }
 
-const sendMessage = async (message: IDraft) => {
+const getChatsPreview = async () => {
     const resp = await supabase
-        .from('message')
-        .insert(message)
+        .rpc('get_chats_preview')
+
+    return resp.data
 }
 
 export {
     getChatPreview,
-    sendMessage
+    getChatsPreview
 }

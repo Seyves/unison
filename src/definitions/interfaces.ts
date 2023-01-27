@@ -1,32 +1,37 @@
+import { Database } from "./schema"
+
 interface WarningObj {
     trigger: boolean,
     message: string | null
 }
 
-interface IMessage extends IDraft{
-    id: number,    
-    createdAt: string,
-    updatedAt: string
+type messages = Database['public']['Tables']['messages']
+
+type IMessage = messages & {
+    [K in keyof messages]: {
+        status?: "error" | "pending" | "sended" | "read"
+    }
 }
 
-interface IDraft {
-    sender: string,
-    to: number,
-    text: string | null
-}
+type IChatPreview = Database['public']['Functions']['get_chats_preview']['Returns']
 
-interface IChatPreview {
-    id: string,
-    name: string,
-    isGroup: boolean,
-    avatar: string,
-    lastMessage?: IMessage,
-    unreadCount: number
+type IMember = Database['public']['Tables']['members']
+
+interface DirectionStatus {
+    top: {
+        isLoading: boolean,
+        isReached: boolean
+    },
+    bottom: {
+        isLoading: boolean,
+        isReached: boolean
+    }
 }
 
 export { 
-    IMessage, 
-    IDraft,
-    IChatPreview, 
+    IMessage,
+    IChatPreview,
+    IMember, 
+    DirectionStatus,
     WarningObj 
 }

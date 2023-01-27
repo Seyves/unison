@@ -2,7 +2,7 @@ import Layout from "./Layout";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Messenger from './messenger/Messenger'
 import Library from './library/Library'
-import Chat from './messenger/components/Chat'
+import Chat from './messenger/chat/Chat'
 import Auth from "./auth/Auth";
 import { layoutLoader } from "./Layout";
 import { authLoader } from "./auth/Auth";

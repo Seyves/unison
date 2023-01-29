@@ -1,78 +1,102 @@
-import { useQuery } from "@tanstack/react-query";
-import { useContext, useEffect, useState } from "react"
+import { DirectionStatus } from '../../../../definitions/utilities';
+import { MessageGet, MessageSet } from '../../../../definitions/messages';
+import { useRef, useEffect, SyntheticEvent, useContext, useState } from 'react';
 import { UserContext } from "../../../Layout";
-import { IMessage, DirectionStatus } from "../../../../definitions/interfaces";
-import supabase from "../../../../config/supabaseClient";
-import ScrollerView from "./ScrollerView";
-import { getMessages } from "../../../../api/messages";
-import useDirectionStatus from "../../../../hooks/useDirectionStatus";
-import useMessages from "../../../../hooks/useMessages";
-import useLastReads from "../../../../hooks/useLastReads";
+import Message from './Message';
+import createDebounce from '../../../../functions/createDebounce';
 
-const Scroller = ({chatId} : {chatId: number}) => {    
+const debounce = createDebounce(150)
+
+const Scroller = ({chatId, messages, pendingMessages, directionStatus, readMessage, loadMessages} : IScroller) => {
     const user = useContext(UserContext)
+    const [isInitialScrolled, setIsInitialScrolled] = useState(false)
 
-    const [directionStatus, setDirectionStatus] = useDirectionStatus()
-
-    const { messages, pendingMessages, setPendingMessages, setMessages } = useMessages(chatId)
-
-    const lastReadsIds = useLastReads(chatId)
-
-
-    useEffect(()=> {
-        const subscription = supabase
-            .channel(`chat-${chatId}-changes`)
-            .on<IMessage["Row"]>(
-                'postgres_changes', 
-                {
-                    event: 'INSERT', 
-                    schema: 'public', 
-                    table: 'messages',
-                    filter: `to=eq.${chatId}`,
-                }, 
-                resp => {
-                    if (resp.new.sender == user.id) return
-                    setMessages(prev => [...prev, resp.new])
-                }
-            )
-            .subscribe()
-
-        return () => {
-            supabase.removeChannel(subscription) 
-            return
-        }
-    }, [])
-
-    if (!messages || !lastReadsIds) return <div></div>
-
+    const myLastReadElem = useRef<HTMLDivElement>(null)
     
-    const loadMessages = async (from: number, direction: keyof DirectionStatus) => {
-        if (directionStatus[direction].isLoading || directionStatus[direction].isReached) return
+    const myLastReadId = messages.getMyLastReadId()
 
-        setDirectionStatus(direction, "isLoading", true)
-
-        const newMessages = await getMessages(chatId, from, direction == 'top')
-        
-        setDirectionStatus(direction, "isLoading", false)
-
-        if (!newMessages) return;
-        if (newMessages.length < 20) setDirectionStatus(direction, "isReached", true)
-
-        setMessages((prev) => {
-            return direction == 'top' ?
-                [...newMessages, ...prev] :
-                [...prev, ...newMessages]
-        })
+    const setInitialScroll = () => {
+        setIsInitialScrolled(false)         
+        myLastReadElem.current?.scrollIntoView({block: "center"})
+        setIsInitialScrolled(true)        
     }
 
+    useEffect(setInitialScroll, [chatId])
+
+    const scrollHandler = (e: SyntheticEvent) => {    
+        if (!isInitialScrolled) return
+        const scroller = e.target as HTMLDivElement
+        const band = scroller.firstChild as HTMLDivElement
+        const scrollerHeight = scroller.clientHeight
+        const bandHeight = band.offsetHeight
+
+        const spaceBottom = Math.abs(scroller.scrollTop)
+        const spaceTop = bandHeight - spaceBottom - scrollerHeight        
+
+        //if near bottom and bottom is't reached or loading
+        if (
+            spaceBottom - scrollerHeight < 0 &&
+            !(directionStatus.bottom.isLoading || directionStatus.bottom.isReached)
+        ) {
+            loadMessages(messages[messages.length-1].id, 'bottom')
+        }
+        //if near top and top is't reached or loading
+        if (
+            spaceTop - scrollerHeight < 0 &&
+            !(directionStatus.top.isLoading || directionStatus.top.isReached)
+        ) {
+            loadMessages(messages[0].id, 'top')
+        }
+
+        //logic for reading messages when scrolling
+        const scrollerRect = scroller.getBoundingClientRect()   
+        const scrollerCenter = scrollerRect.x + scrollerRect.width/2
+        const scrollerBottom = scrollerRect.y + scrollerRect.height - 1
+
+        const bottomMessElem = document.elementFromPoint(scrollerCenter, scrollerBottom)
+        const bottomMessId = parseInt(bottomMessElem?.id || '')
+        const bottomMess = messages.find(mess => mess.id == bottomMessId)
+
+        if (!bottomMess) return
+
+        if (myLastReadId < bottomMessId && bottomMess.sender != user.id) {
+            debounce(() => readMessage(bottomMessId))
+        }
+    }
+
+    const statusedMessages = messages?.map(message => {
+        if (message.id == myLastReadId) {
+            return <Message key={message.id} {...message} ref={myLastReadElem} status={message.readBy.length == 0 ? "sended" : "read"}/>
+        }
+
+        if (message.readBy.length == 0) {
+            return <Message key={message.id} {...message} status={"sended"}/>
+        } else {
+            return <Message key={message.id} {...message} status={"read"}/>
+        }
+    })
+
+    const statusedPendingMessages = pendingMessages?.map(message => {
+        return <Message key={message.id} {...message} status="pending"/>
+    })
+    
     return (
-        <ScrollerView 
-            messages={messages}
-            pendingMessages={pendingMessages}
-            lastReadsIds={lastReadsIds}
-            loadMessages={loadMessages}
-        />
+        <div className="overflow-x-hidden overflow-y-auto flex flex-col-reverse" onScroll={scrollHandler}>
+            <div className="flex flex-col pt-2">
+                {statusedMessages}
+                {statusedPendingMessages}
+            </div>
+        </div>
     );
+};
+
+interface IScroller {
+    chatId: number
+    messages: MessageGet[], 
+    pendingMessages: MessageSet[],
+    directionStatus: DirectionStatus,
+    readMessage: (messId: number) => void,
+    loadMessages: (from: number, direction: keyof DirectionStatus) => void
 }
 
 export default Scroller;

@@ -1,32 +1,63 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getInitMessages } from '../api/messages';
-import { IMessage } from '../definitions/interfaces';
+import messagesAPI from '../api/messages';
+import { MessageGet, MessageSet } from '../definitions/messages';
+import { useEffect } from 'react'
+import supabase from '../config/supabaseClient';
 
-const useMessages = (chatId : number) => {
-    const qc = useQueryClient()
+const useMessages = (chatId : number, userId: string) => {
+    const queryClient = useQueryClient()
 
     const { data: messages } = useQuery({
         queryKey: ['chat', chatId],
-        queryFn: () => getInitMessages(chatId),
+        queryFn: () => messagesAPI.getInitMessages(chatId),
         refetchOnWindowFocus: false,
         staleTime: Infinity
     })
 
-    const setMessages = (callback : (oldArray : IMessage["Row"][]) => IMessage["Row"][]) => {
-        qc.setQueryData<IMessage["Row"][]>(
+    const setMessages = (callback : (prev : MessageGet[]) => MessageGet[]) => {
+        queryClient.setQueryData<MessageGet[]>(
             ['chat', chatId],
-            prev => prev ? callback(prev) : callback([])
+            prev => callback(prev || [])
         )
     }
 
-    const pendingMessages = qc.getQueryData<IMessage["Insert"][]>(['chat-pending', chatId]) || []
+    const pendingMessages = queryClient.getQueryData<MessageSet[]>(['chat-pending', chatId]) || []
 
-    const setPendingMessages = (callback : (oldArray : IMessage["Insert"][]) => IMessage["Insert"][]) => {
-        qc.setQueryData<IMessage["Insert"][]>(
+    const setPendingMessages = (callback : (prev : MessageSet[]) => MessageSet[]) => {
+        queryClient.setQueryData<MessageSet[]>(
             ['chat-pending', chatId],
-            prev => prev ? callback(prev) : callback([])
+            prev => callback(prev || [])
         )
     }
+
+    if(messages) messages.getMyLastReadId = function () {
+        return this?.reduce((lastReadMessage, message) => {
+            return message.readBy.includes(userId) ? message.id : lastReadMessage
+        }, 0)        
+    }
+    
+    useEffect(()=> {
+        const subscription = supabase
+            .channel(`chat-${chatId}-changes`)
+            .on<MessageGet>(
+                'postgres_changes', 
+                {
+                    event: 'INSERT', 
+                    schema: 'public', 
+                    table: 'messages',
+                    filter: `to=eq.${chatId}`,
+                }, 
+                resp => {
+                    if (resp.new.sender == userId) return
+                    setMessages(prev => [...prev, {...resp.new, readBy: []}])
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(subscription)
+        }
+    }, [])
 
     return { messages, setMessages, pendingMessages, setPendingMessages }
 };

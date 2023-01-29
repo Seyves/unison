@@ -1,6 +1,6 @@
 import supabase from "../config/supabaseClient"
 import { PostgrestResponse } from "@supabase/supabase-js";
-import { IChatPreview } from "../definitions/interfaces";
+import { IChatPreview } from "../definitions/utilities";
 
 const getChatPreview = async (chatId : number) => {
     const resp = await supabase
@@ -17,7 +17,7 @@ const getChatsPreview = async () => {
     return resp.data
 }
 
-export {
+export default {
     getChatPreview,
     getChatsPreview
 }

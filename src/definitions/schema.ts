@@ -1,232 +1,132 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json }
-  | Json[]
+import { MessageGet, MessageSet, MessageUpdate } from "./messages"
+import { UserGet, UserSet, UserUpdate } from "./users"
+import { BlackListGet, BlackListSet, BlackListUpdate, } from "./blackLists"
+import { MemberGet, MemberSet, MemberUpdate } from "./members"
+import { ChatPreviewGet } from './chatPreviews'
 
 export interface Database {
-  public: {
-    Tables: {
-      black_list: {
-        Row: {
-          blocked: string
-          byUser: string
-          id: number
-          updatedAt: string
+    public: {
+        Tables: {
+            black_list: {
+                Row: BlackListGet
+                Insert: BlackListSet
+                Update: BlackListUpdate
+            }
+            chats: {
+                Row: {
+                    id: number
+                    isGroup: boolean
+                    theme: string | null
+                }
+                Insert: {
+                    id?: number
+                    isGroup?: boolean
+                    theme?: string | null
+                }
+                Update: {
+                    id?: number
+                    isGroup?: boolean
+                    theme?: string | null
+                }
+            }
+            groups: {
+                Row: {
+                    avatar: string | null
+                    id: number
+                    name: string
+                }
+                Insert: {
+                    avatar?: string | null
+                    id?: number
+                    name?: string
+                }
+                Update: {
+                    avatar?: string | null
+                    id?: number
+                    name?: string
+                }
+            }
+            members: {
+                Row: MemberGet
+                Insert: MemberSet
+                Update: MemberUpdate
+            }
+            message_reactions: {
+                Row: {
+                    byUser: string
+                    id: number
+                    isDelited: boolean
+                    isPinned: boolean
+                    messageId: number
+                    reaction: string | null
+                }
+                Insert: {
+                    byUser: string
+                    id?: number
+                    isDelited?: boolean
+                    isPinned?: boolean
+                    messageId: number
+                    reaction?: string | null
+                }
+                Update: {
+                    byUser?: string
+                    id?: number
+                    isDelited?: boolean
+                    isPinned?: boolean
+                    messageId?: number
+                    reaction?: string | null
+                }
+            }
+            messages: {
+                Row: MessageGet
+                Insert: MessageSet
+                Update: MessageUpdate
+            }
+            users: {
+                Row: UserGet
+                Insert: UserSet
+                Update: UserUpdate
+            }
         }
-        Insert: {
-          blocked: string
-          byUser: string
-          id?: number
-          updatedAt?: string
+        Views: {
+            [_ in never]: never
         }
-        Update: {
-          blocked?: string
-          byUser?: string
-          id?: number
-          updatedAt?: string
+        Functions: {
+            get_chat_messages:
+                {
+                    Args: { chat: number }
+                    Returns: MessageGet
+                } | {
+                    Args: { chat: number; from: number; up: boolean }
+                    Returns: MessageGet
+                }
+            get_chats_avatar: {
+                Args: Record<PropertyKey, never>
+                Returns: { id: number; avatar: string; name: string }
+            }
+            get_chats_preview: {
+                Args: Record<PropertyKey, never>
+                Returns: ChatPreviewGet
+            }
+            get_chats_unread: {
+                Args: Record<PropertyKey, never>
+                Returns: { id: number; unreadCount: number }
+            }
+            get_dialogs_avatar: {
+                Args: Record<PropertyKey, never>
+                Returns: { id: number; avatar: string; name: string }
+            }
+            get_groups_avatar: {
+                Args: Record<PropertyKey, never>
+                Returns: { id: number; avatar: string; name: string }
+            }
+            get_only_user_chats: {
+                Args: Record<PropertyKey, never>
+                Returns: number
+            }
         }
-      }
-      chats: {
-        Row: {
-          id: number
-          isGroup: boolean
-          theme: string | null
+        Enums: {
+            [_ in never]: never
         }
-        Insert: {
-          id?: number
-          isGroup?: boolean
-          theme?: string | null
-        }
-        Update: {
-          id?: number
-          isGroup?: boolean
-          theme?: string | null
-        }
-      }
-      groups: {
-        Row: {
-          avatar: string | null
-          id: number
-          name: string
-        }
-        Insert: {
-          avatar?: string | null
-          id?: number
-          name?: string
-        }
-        Update: {
-          avatar?: string | null
-          id?: number
-          name?: string
-        }
-      }
-      members: {
-        Row: {
-          chatId: number
-          id: number
-          isPinned: boolean
-          lastReadMessage: number | null
-          userId: string
-        }
-        Insert: {
-          chatId: number
-          id?: number
-          isPinned?: boolean
-          lastReadMessage?: number | null
-          userId: string
-        }
-        Update: {
-          chatId?: number
-          id?: number
-          isPinned?: boolean
-          lastReadMessage?: number | null
-          userId?: string
-        }
-      }
-      message_reactions: {
-        Row: {
-          byUser: string
-          id: number
-          isDelited: boolean
-          isPinned: boolean
-          messageId: number
-          reaction: string | null
-        }
-        Insert: {
-          byUser: string
-          id?: number
-          isDelited?: boolean
-          isPinned?: boolean
-          messageId: number
-          reaction?: string | null
-        }
-        Update: {
-          byUser?: string
-          id?: number
-          isDelited?: boolean
-          isPinned?: boolean
-          messageId?: number
-          reaction?: string | null
-        }
-      }
-      messages: {
-        Row: {
-          createdAt: string
-          id: number
-          sender: string
-          text: string | null
-          to: number
-          updatedAt: string
-        }
-        Insert: {
-          createdAt?: string
-          id?: number
-          sender: string
-          text?: string | null
-          to: number
-          updatedAt?: string
-        }
-        Update: {
-          createdAt?: string
-          id?: number
-          sender?: string
-          text?: string | null
-          to?: number
-          updatedAt?: string
-        }
-      }
-      users: {
-        Row: {
-          about: string | null
-          avatar: string | null
-          id: string
-          login: string | null
-          name: string | null
-        }
-        Insert: {
-          about?: string | null
-          avatar?: string | null
-          id: string
-          login?: string | null
-          name?: string | null
-        }
-        Update: {
-          about?: string | null
-          avatar?: string | null
-          id?: string
-          login?: string | null
-          name?: string | null
-        }
-      }
     }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      get_chat_messages:
-        | {
-            Args: { chat: number }
-            Returns: {
-              id: number
-              sender: string
-              to: number
-              text: string
-              createdat: string
-              updatedat: string
-            }[]
-          }
-        | {
-            Args: { chat: number; from: number; up: boolean }
-            Returns: {
-              id: number
-              sender: string
-              to: number
-              text: string
-              createdat: string
-              updatedat: string
-            }[]
-          }
-      get_chat_unread_ids: {
-        Args: { chat: number }
-        Returns: Json
-      }
-      get_chats_avatar: {
-        Args: Record<PropertyKey, never>
-        Returns: { id: number; avatar: string; name: string }[]
-      }
-      get_chats_preview: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          id: number
-          name: string
-          isGroup: boolean
-          lastMessage: Json
-          avatar: string
-          unreadCount: number
-        }[]
-      }
-      get_chats_unread: {
-        Args: Record<PropertyKey, never>
-        Returns: { id: number; unreadCount: number }[]
-      }
-      get_dialogs_avatar: {
-        Args: Record<PropertyKey, never>
-        Returns: { id: number; avatar: string; name: string }[]
-      }
-      get_groups_avatar: {
-        Args: Record<PropertyKey, never>
-        Returns: { id: number; avatar: string; name: string }[]
-      }
-      get_only_user_chats: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-  }
 }

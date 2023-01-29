@@ -1,6 +1,6 @@
 import { CSSProperties } from "react"
 import { SlMusicTone, SlMusicToneAlt } from "react-icons/sl";
-import { IMessage } from "../../../../definitions/interfaces";
+import { MessageComponent } from "../../../../definitions/messages";
 
 const basicIconStyles : CSSProperties = {
     height: '13px', 
@@ -35,7 +35,7 @@ const statusesIcons = {
     }}/>    
 }
 
-const StatusIcon = ({status} : {status : IMessage["Row"]["status"]}) => {
+const StatusIcon = ({status} : {status : MessageComponent["status"]}) => {
     return (
         <div>
             {status ? 

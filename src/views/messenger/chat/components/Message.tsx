@@ -1,18 +1,18 @@
 import { useContext, forwardRef, CSSProperties } from "react"
 import { UserContext } from "../../../Layout";
-import { IMessage } from '../../../../definitions/interfaces';
+import { MessageComponent } from "../../../../definitions/messages";
 import getTimeFromISO from "../../../../functions/getTImeFromISO";
 import StatusIcon from "./StatusIcon";
 
 
-const Message = forwardRef<HTMLDivElement, IMessage["Insert"]>(({id, sender, to, text, createdAt, updatedAt, status = 'sended'}, ref) => {    
+const Message = forwardRef<HTMLDivElement, MessageComponent>(({id, sender, to, text, createdAt, updatedAt, status = 'sended'}, ref) => {    
     const user = useContext(UserContext)
 
     const isFromMe = user.id == sender
     const lastMesTime = createdAt ? getTimeFromISO(createdAt): null
     
     return (
-        <div className="flex flex-col" id={id ? id.toString() : undefined} ref={ref}>
+        <div className={"flex flex-col px-3 py-0.5 " + (!isFromMe && status == 'sended' ? 'bg-stone-800' : '')} id={id ? id.toString() : undefined} ref={ref}>
             <div className={'p-2 text-sm rounded-xl text-stone-100 flex gap-3 items-end ' 
                 + (isFromMe ? 'bg-fuchsia-700 self-end rounded-br-none' : 'bg-stone-700 self-start rounded-bl-none')}
             >

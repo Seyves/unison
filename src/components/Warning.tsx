@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { WarningObj } from '../definitions/interfaces';
+import { WarningObj } from '../definitions/utilities';
 
 const Warning = ({warning, className} : IWarning) => {
     const elem = useRef<HTMLDivElement>(null)

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DirectionStatus } from '../definitions/interfaces';
+import { DirectionStatus } from '../definitions/utilities';
 
 const useDirectionStatus = () => {
     let [directionStatus, setDirectionStatusRaw] = useState<DirectionStatus>({

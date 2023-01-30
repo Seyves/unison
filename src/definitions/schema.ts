@@ -4,6 +4,14 @@ import { BlackListGet, BlackListSet, BlackListUpdate, } from "./blackLists"
 import { MemberGet, MemberSet, MemberUpdate } from "./members"
 import { ChatPreviewGet } from './chatPreviews'
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json }
+  | Json[]
+
 export interface Database {
     public: {
         Tables: {

@@ -82,7 +82,6 @@ const Chat = () => {
     })
 
     useEffect(() => {
-        console.log(messages?.getMyLastReadId());
         
         const subscription = supabase
             .channel("read-changes")
@@ -105,7 +104,9 @@ const Chat = () => {
                             return mess
                         }) 
                     })
-                    if (memberUpdate.userId == chatPreview.lastMessage.sender) return
+                    
+                    // Todo
+                    // if (memberUpdate.userId == chatPreview.lastMessage.sender) return
                     
                     setChatPreview(prev => ({
                         ...prev, 

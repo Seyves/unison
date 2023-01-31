@@ -1,4 +1,4 @@
-interface UserGet {
+type UserGet = {
     about: string | null
     avatar: string | null
     id: string
@@ -6,7 +6,7 @@ interface UserGet {
     name: string | null
 }
 
-interface UserSet {
+type UserSet = {
     about?: string | null
     avatar?: string | null
     id: string
@@ -14,7 +14,7 @@ interface UserSet {
     name?: string | null
 }
 
-interface UserUpdate {
+type UserUpdate = {
     about?: string | null
     avatar?: string | null
     id?: string

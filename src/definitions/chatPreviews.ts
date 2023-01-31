@@ -1,4 +1,4 @@
-interface ChatPreviewComponent {
+type ChatPreviewComponent = {
     id: number
     name: string
     isGroup: boolean
@@ -15,7 +15,7 @@ interface ChatPreviewComponent {
     unreadCount: number
 }
 
-interface ChatPreviewGet {
+type ChatPreviewGet = {
     id: number
     name: string
     isGroup: boolean

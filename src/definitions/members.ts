@@ -1,4 +1,4 @@
-interface MemberGet {
+type MemberGet = {
     chatId: number
     id: number
     isPinned: boolean
@@ -6,7 +6,7 @@ interface MemberGet {
     userId: string
 }
 
-interface MemberSet {
+type MemberSet = {
     chatId: number
     id?: number
     isPinned?: boolean
@@ -14,7 +14,7 @@ interface MemberSet {
     userId: string
 }
 
-interface MemberUpdate {
+type MemberUpdate = {
     chatId?: number
     id?: number
     isPinned?: boolean

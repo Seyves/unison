@@ -1,18 +1,18 @@
-interface BlackListGet {
+type BlackListGet = {
     blocked: string
     byUser: string
     id: number
     updatedAt: string
 }
 
-interface BlackListSet {
+type BlackListSet = {
     blocked: string
     byUser: string
     id?: number
     updatedAt?: string
 }
 
-interface BlackListUpdate {
+type BlackListUpdate = {
     blocked?: string
     byUser?: string
     id?: number

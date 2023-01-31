@@ -1,4 +1,4 @@
-interface MessageComponent {
+type MessageComponent =  {
     createdAt: string
     id: number
     sender: string
@@ -18,17 +18,15 @@ type MessageGet = {
     readBy: string[]
 }
 
-interface MessageSet {
-    createdAt: string
-    id: number
+type MessageSet = {
+    createdAt?: string
+    id?: number
     sender: string
     text: string | null
     to: number
-    updatedAt: string
-    readBy: null
+    updatedAt?: string
 }
-
-interface MessageUpdate {
+type MessageUpdate = {
     createdAt?: string
     id?: number
     sender: string

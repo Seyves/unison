@@ -15,6 +15,7 @@ import { useChatPreview } from "../../../hooks/useChatPreviews";
 import useDirectionStatus from "../../../hooks/useDirectionStatus";
 import supabase from "../../../config/supabaseClient";
 import { MemberGet } from "../../../definitions/members";
+import getMyLastReadId from "../../../functions/getMyLastReadId";
 
 const Chat = () => {
     const user = useContext(UserContext)    
@@ -58,7 +59,7 @@ const Chat = () => {
     const { mutate: readMessage } = useMutation({
         mutationFn: async (messId: number) => messagesAPI.readMessage(chatId, user.id, messId),
         onMutate: (newLastReadId) => {
-            const prevLastReadId = messages.getMyLastReadId()     
+            const prevLastReadId = getMyLastReadId(messages, user.id)     
             if (!prevLastReadId) return
             
             const readedDelta = messages?.filter(mess => {

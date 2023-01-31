@@ -86,8 +86,8 @@ export interface Database {
                 }
             }
             messages: {
-                Row: MessageGet
-                Insert: MessageSet
+                Row: MessageGet,
+                Insert: MessageSet,
                 Update: MessageUpdate
             }
             users: {

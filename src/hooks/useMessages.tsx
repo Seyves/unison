@@ -11,7 +11,7 @@ const useMessages = (chatId : number, userId: string) => {
         queryKey: ['chat', chatId],
         queryFn: () => messagesAPI.getInitMessages(chatId),
         refetchOnWindowFocus: false,
-        staleTime: Infinity
+        staleTime: Infinity,
     })
 
     const setMessages = (callback : (prev : MessageGet[]) => MessageGet[]) => {

@@ -23,7 +23,7 @@ const Auth = () => {
     const [warning, setWarning] = useWarning()
     const navigate = useNavigate()
     
-    const handleAuth = async (e: FormEvent<HTMLFormElement>) => {        
+    const handleAuth = async (e: FormEvent) => {        
         e.preventDefault()
 
         if (email == '' || password == '') {
@@ -49,7 +49,7 @@ const Auth = () => {
         navigate('/')
     }
 
-    const changeLoginType = (e: MouseEvent<HTMLAnchorElement>, type: LoginType) => {
+    const changeLoginType = (e: MouseEvent, type: LoginType) => {
         e.preventDefault()
         setType(type)
     }

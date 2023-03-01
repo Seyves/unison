@@ -5,7 +5,7 @@ const Person = ({name, avatar, placeholder} : Person) => {
                 <img src={avatar} alt="avatar" className="w-full h-full"/>
             </div>
             <div className="flex-grow flex flex-col justify-between py-1 w-2">
-                <p className=" font-bold">{name}</p>
+                <p className="font-bold">{name}</p>
                 <p className="text-ellipsis whitespace-nowrap overflow-hidden text-xs">{placeholder}</p>
             </div>
         </div>
@@ -15,7 +15,7 @@ const Person = ({name, avatar, placeholder} : Person) => {
 interface Person {
     name: string,
     avatar?: string,
-    placeholder?: string
+    placeholder?: string | null
 }
 
 export default Person;

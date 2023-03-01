@@ -5,7 +5,7 @@ const Tab = ({title, children, to} : ITab) => {
         <NavLink 
             to={to} 
             className={({isActive}) => {
-                let classStr = "relative group p-1 rounded-md hover:bg-fuchsia-200 transform duration-300"
+                let classStr = "relative group tab p-1 rounded-md hover:bg-fuchsia-200 transform duration-300"
                 classStr += isActive ? ' bg-fuchsia-300' : ''
                 return classStr
             }}

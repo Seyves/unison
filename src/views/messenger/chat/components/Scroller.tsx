@@ -1,9 +1,10 @@
 import { DirectionStatus } from '../../../../definitions/utilities';
-import { MessageGet, MessageSet } from '../../../../definitions/messages';
-import { useRef, useEffect, SyntheticEvent, useContext, useState } from 'react';
+import { MessageGet, MessagePending, MessageSet } from '../../../../definitions/messages';
+import { useRef, useEffect, SyntheticEvent, useContext, useState, useMemo } from 'react';
 import { UserContext } from "../../../Layout";
 import Message from './Message';
 import createDebounce from '../../../../functions/createDebounce';
+import getMyLastReadId from '../../../../functions/getMyLastReadId';
 
 const debounce = createDebounce(150)
 
@@ -13,7 +14,7 @@ const Scroller = ({chatId, messages, pendingMessages, directionStatus, readMessa
 
     const myLastReadElem = useRef<HTMLDivElement>(null)
     
-    const myLastReadId = messages.getMyLastReadId()
+    const myLastReadId = getMyLastReadId(messages, user.id)
 
     const setInitialScroll = () => {
         setIsInitialScrolled(false)         
@@ -35,14 +36,14 @@ const Scroller = ({chatId, messages, pendingMessages, directionStatus, readMessa
 
         //if near bottom and bottom is't reached or loading
         if (
-            spaceBottom - scrollerHeight < 0 &&
+            spaceBottom - scrollerHeight*2 < 0 &&
             !(directionStatus.bottom.isLoading || directionStatus.bottom.isReached)
         ) {
             loadMessages(messages[messages.length-1].id, 'bottom')
         }
         //if near top and top is't reached or loading
         if (
-            spaceTop - scrollerHeight < 0 &&
+            spaceTop - scrollerHeight*2 < 0 &&
             !(directionStatus.top.isLoading || directionStatus.top.isReached)
         ) {
             loadMessages(messages[0].id, 'top')
@@ -64,7 +65,8 @@ const Scroller = ({chatId, messages, pendingMessages, directionStatus, readMessa
         }
     }
 
-    const statusedMessages = messages?.map(message => {
+    //useMemo for better performance, incase we have many-many messages
+    const statusedMessages = useMemo(() => messages?.map(message => {
         if (message.id == myLastReadId) {
             return <Message key={message.id} {...message} ref={myLastReadElem} status={message.readBy.length == 0 ? "sended" : "read"}/>
         }
@@ -74,7 +76,7 @@ const Scroller = ({chatId, messages, pendingMessages, directionStatus, readMessa
         } else {
             return <Message key={message.id} {...message} status={"read"}/>
         }
-    })
+    }), [messages])
 
     const statusedPendingMessages = pendingMessages?.map(message => {
         return <Message key={message.id} {...message} status="pending"/>
@@ -93,7 +95,7 @@ const Scroller = ({chatId, messages, pendingMessages, directionStatus, readMessa
 interface IScroller {
     chatId: number
     messages: MessageGet[], 
-    pendingMessages: MessageSet[],
+    pendingMessages: MessagePending[],
     directionStatus: DirectionStatus,
     readMessage: (messId: number) => void,
     loadMessages: (from: number, direction: keyof DirectionStatus) => void

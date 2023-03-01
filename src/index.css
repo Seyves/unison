@@ -20,10 +20,10 @@
     src: url('./assets/Signal-Bold.woff2');
 }
 
-.group:hover svg{
+.tab:hover svg{
     color: #1c1917;
 }
-.group.bg-fuchsia-300 svg{
+.tab.bg-fuchsia-300 svg{
     color: #1c1917;
 }
 

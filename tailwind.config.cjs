@@ -10,7 +10,7 @@ module.exports = {
       extend: {
         gridTemplateColumns: {                
             'messenger': '320px 1fr',
-            'main': '55px 1fr',
+            'main': '55px 1fr auto',
         },
         gridTemplateRows: {
             'chat': '65px 1fr',
@@ -18,6 +18,9 @@ module.exports = {
         },
         height: {
             '18': '4.5rem' 
+        },
+        boxShadow: {
+            'contex-menu': '0px 4px 6px 3px rgba(0, 0, 0, 0.2)',
         },
         keyframes: {
             hide: {

@@ -8,6 +8,25 @@ type MessageComponent =  {
     status?: "error" | "pending" | "sended" | "read"
 }
 
+type MessagePending = {
+    createdAt: string
+    id: number
+    sender: string
+    text: string | null
+    to: number
+    updatedAt: string
+    readBy: null
+}
+
+type MessageRealTimeGet = {
+    createdAt: string
+    id: number
+    sender: string
+    text: string | null
+    to: number
+    updatedAt: string
+}
+
 type MessageGet = {
     createdAt: string
     id: number
@@ -37,6 +56,8 @@ type MessageUpdate = {
 
 export {
     MessageComponent,
+    MessagePending,
+    MessageRealTimeGet,
     MessageGet,
     MessageSet,
     MessageUpdate

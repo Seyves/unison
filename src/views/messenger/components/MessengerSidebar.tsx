@@ -3,9 +3,14 @@ import Input from '../../../components/Input';
 import { ChangeEvent } from 'react';
 import supabase from '../../../config/supabaseClient';
 import useChatPreviews from '../../../hooks/useChatPreviews';
+import Spinner from '../../../components/Spinner';
+import { UserContext } from '../../Layout';
+import { useContext } from 'react'
 
 const MessengerSidebar = () => {    
-    const {chatPreviews, refetch} = useChatPreviews()
+    const user = useContext(UserContext)
+    
+    const { previews, isLoading } = useChatPreviews(user.id)
 
     return (
         <div className="grid grid-rows-chat border-stone-700 border-r min-h-0">
@@ -20,7 +25,7 @@ const MessengerSidebar = () => {
                 </div>
                 <div className=" overflow-y-auto">
                     <div>
-                        {chatPreviews?.map((item) => <ChatPreview key={item.id} {...item}/>)}
+                        {!isLoading ? previews?.map((item) => <ChatPreview key={item.id} {...item}/>) : <div className='flex justify-center mt-10'><Spinner /></div> }
                     </div>
                 </div>
             </div>

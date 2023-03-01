@@ -1,90 +1,81 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import chatsAPI from "../api/chats";
-import { ChatPreviewGet } from "../definitions/chatPreviews";
-import { useEffect } from 'react'
-import supabase from '../config/supabaseClient';
+import { useEffect, useState } from 'react'
+import useChatStore, { useStore } from "../store/store";
+import messagesAPI from "../api/messages";
+import { MessageRealTimeGet } from "../definitions/messages";
+import { MemberGet } from "../definitions/members";
 
-const useChatPreviews = () => {
-    const queryClient = useQueryClient()
+const useChatPreviews = (userId: string) => {
+    const [isLoading, setIsLoading] = useState(true)
 
-    const { refetch, data: chatPreviews } = useQuery({
-        queryKey: ['chat-previews'],
-        queryFn: () => chatsAPI.getChatsPreview(),
-        refetchOnWindowFocus: false,
-        onSuccess: (previews) => {
-            if (!previews) return;
+    const [ chats, createPreviews ] = useStore(state => [
+        state.chats, state.createPreviews
+    ])
 
-            for (let preview of previews) {
-                queryClient.setQueryData(
-                    ["chat-preview", preview.id], 
-                    preview
-                )
-            }
-        }
-    })
+    const initialLoad = async () => {
+        setIsLoading(true)
+        const previews = await chatsAPI.getPreviews()
+        if (previews) createPreviews(previews)
+        setIsLoading(false) 
+    }
 
-    //making chat-previews and chat-preview[chatId] reactive
-    const setChatPreviews = (callback : (prev : ChatPreviewGet[]) => ChatPreviewGet[]) => {
-        queryClient.setQueryData<ChatPreviewGet[]>(
-            ['chat-previews'],
-            prev => callback(prev || [])
+    const handleNewMessage = async (message: MessageRealTimeGet) => {
+        const previews = await chatsAPI.getPreviews()
+        if (previews) createPreviews(previews)
+
+        const currentChat = useStore.getState().currentChat
+        if (message.sender == userId || message.to != currentChat) return
+        useChatStore(currentChat).getState().setMessages(prev => {
+            return [...prev, {...message, readBy: []}]
+        })
+    }
+
+    const handleNewRead = async (member: MemberGet) => {
+        if (member.userId == userId) return
+
+        const readMessage = useChatStore(member.chatId).getState().readMessage
+
+        readMessage(member.lastReadMessage, member.userId)
+    }
+
+    const subscribeToInserts = () => {
+        return messagesAPI.subscribeMessages({
+            event: "INSERT",
+            callback: (resp) => handleNewMessage(resp.new)
+        })
+    }
+
+    const subscribeToReads = () => {
+        return messagesAPI.subscribeReads(
+            (resp) => handleNewRead(resp.new)
         )
-        ////...
-    }    
+    }
     
-    useEffect(() => {
-        const subscription = supabase
-            .channel("all-chat-changes")
-            .on(
-                'postgres_changes', 
-                {
-                    event: '*', 
-                    schema: 'public', 
-                    table: 'messages'
-                }, 
-                () => refetch()
-            )
-            .subscribe()
+    useEffect(() => {        
+        initialLoad()
+        const unsubscribeInserts = subscribeToInserts()
+        const unsubscribeReads = subscribeToReads()
 
         return () => {
-            supabase.removeChannel(subscription)
+            unsubscribeInserts()
+            unsubscribeReads()
         }
-    })    
+    }, [])    
 
-    return { chatPreviews, refetch }
-};
+    let previews = []
 
-const useChatPreview = (chatId: number) => {
-    const queryClient = useQueryClient()
-
-    const { data: chatPreview } = useQuery({
-        queryKey: ["chat-preview", chatId], 
-        queryFn: () => chatsAPI.getChatPreview(chatId),
-        refetchOnWindowFocus: false
+    for (let chatId in chats) {
+        const chat = chats[chatId]
+        previews.push(chat.preview)
+    }
+    
+    previews.sort((a, b) => {
+        const firstStamp = new Date(a.lastMessage.createdAt).valueOf()
+        const secondStamp = new Date(b.lastMessage.createdAt).valueOf()
+        return secondStamp - firstStamp
     })
 
-    //making chat-preview[chatId] and chat-previews reactive
-    const setChatPreview = (callback : (prev : ChatPreviewGet) => ChatPreviewGet) => {
-        queryClient.setQueryData<ChatPreviewGet>(
-            ['chat-preview', chatId],
-            prev => callback(prev as ChatPreviewGet)
-        )
-
-        queryClient.setQueryData<ChatPreviewGet[]>(
-            ['chat-previews'],
-            prev => {
-                const thatOnePreview = prev?.find(item => item.id == chatId) as ChatPreviewGet
-                const newPreview = callback(thatOnePreview)
-                return prev?.map(preview => {
-                    if (preview.id == newPreview.id) return newPreview
-                    return preview
-                })
-            }
-        )
-    }  
-
-    return { chatPreview, setChatPreview }
+    return { previews, isLoading }
 }
 
 export default useChatPreviews
-export { useChatPreview }
